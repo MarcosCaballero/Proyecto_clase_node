@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors";
-import connection from "./utils/connection.js";
+import {
+  createNote,
+  deleteNote,
+  getAllNotes,
+  getNoteById,
+  updateNote,
+} from "./controllers/notes.js";
 
 const app = express();
 // configurar cors para que cualquier cliente pueda hacer peticiones a este servidor
@@ -11,81 +17,20 @@ app.use(express.urlencoded({ extended: true }));
 // configurar pug como motor de vistas
 app.set("view engine", "pug");
 
-let update;
-
-const handlerUpdate = (id_note) => {
-  console.log(id_note);
-  const noteId = id_note;
-  update = true;
-  location.href = `/notes/${noteId}`;
-};
-
+// redirect a home
 app.get("/", (req, res) => {
-  // se le devuelve al usuario
-  // res.json({ message: "Welcome to the server!" });
-  // vista hecha con pug
-  //   res.render("index", { title: "Notes App" });
-  connection.query("SELECT * FROM notas", (err, results) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("index", {
-        title: "Notes App",
-        notes: results,
-        noteId: -1,
-        handlerUpdate: handlerUpdate,
-        update: update,
-      });
-    }
-  });
-  // res.render("PostForm", { title: "Notes App", message: "Create a new note" });
+  res.redirect("/home");
 });
-
-// Tomar todas las notas
-app.get("/notes", (req, res) => {
-  res.json({ message: "All notes" });
-});
+// ROUTES
+app.get("/home", (req, res) => getAllNotes(req, res));
 // Tomar una nota por id
-app.get("/notes/:id", (req, res) => {
-  res.json({ message: "Note by id" });
-});
+app.get("/notes/:id", (req, res) => getNoteById(req, res));
 // Crear nueva nota
-app.post("/", (req, res) => {
-  const { title, description } = req.body;
-  connection.query(
-    "INSERT INTO notas (title, description, created_at) VALUES (?, ?, ?)",
-    [title, description, new Date()],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.redirect("/");
-      }
-    }
-  );
-  // res.json({ message: "New note added", body: req.body });
-});
+app.post("/home", (req, res) => createNote(req, res));
 // Actualizar una nota
-app.put("/notes/:id", (req, res) => {
-  const { id, title, description } = req.body;
-
-  res.json({ message: "Note updated" });
-});
+app.patch("/notes/:id", (req, res) => updateNote(req, res));
 // Borrar una nota
-app.delete("/notes/:id", (req, res) => {
-  const { id } = req.params;
-  connection.query(
-    "DELETE FROM notas WHERE id_note = ?",
-    [id],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.json({ message: "Note deleted" });
-      }
-    }
-  );
-});
+app.delete("/notes/:id", (req, res) => deleteNote(req, res));
 
 const PORT = process.env.PORT || 3000;
 

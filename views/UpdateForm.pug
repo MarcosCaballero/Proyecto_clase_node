@@ -1,0 +1,39 @@
+html
+    head
+        title= title
+        link(rel='stylesheet', href='index.css')
+    body
+        // volver a home
+        a(href="/home") Home
+        h1= message
+        form(id="form-update" method="PATCH")
+            input(type="hidden" name="id" value=`${note && note.id_note}`)
+            input(type="text" name="title" value=`${note && note.title}` placeholder="Title")
+            input(type="text" name="description" value=`${note && note.description}` placeholder="Description")
+            button(onclick=`updateNote`) Actualizar 
+
+script.
+    function updateNote(e){
+        e.preventDefault();
+        console.log('update')
+        fetch(`/notes/${e.target.id.value}`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+                id: e.target.id.value,
+                title: e.target.title.value,
+                description: e.target.description.value
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(res => {
+        if(res.ok) return res.json()
+        }).then(data => {
+            if (data) {
+                window.location.replace('/home')
+            }
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+    document.querySelector('#form-update').addEventListener('submit', updateNote)

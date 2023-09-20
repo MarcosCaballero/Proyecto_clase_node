@@ -5,47 +5,28 @@ html
     body
         h1= message
         p Welcome to #{title}
+        
+        h2 Crear nota
+            form(action="/home" method="POST")
+                input(type="text" name="title" placeholder="Title")
+                textarea(name="description" placeholder="Description")
+                button(onclick=`updateNote`) Crear  
+        h2 Lista de notas
         ul 
             each note in notes
                 .note
                     li 
-                        if !update && noteId !== note.id_note
-                            h2= note.title
-                            p= note.description
-                            button(
-                                    type="button",  
-                                    onclick=`updateNote(${note.id_note})`
-                                ) Update
-                            button(type="button", onclick=`deleteNote(${note.id_note})`) Delete
-                        // update
-                        if update
-                        form(action="/notes/#{note.id_note}" method="PUT")
-                            input(type="text" name="title" value=note.title  required placeholder="Title")
-                            input(type="text" name="description" value=note.description required  placeholder="Description")
-                            input(type="submit" value="Update")
+                        
+                        h2= note.title
+                        p= note.description
+                        button 
+                            a(href=`/notes/${note.id_note}`) Update
+                        button(type="button", onclick=`deleteNote(${note.id_note})`) Delete
         
-        form(action="/" method="POST")
-            input(type="text" name="title" placeholder="Title")
-            input(type="text" name="description" placeholder="Description")
-            input(type="submit" value="Submit")
+        
+        
 
 script.
-    function updateNote(idNote){
-        console.log('update' + idNote)
-        fetch(`/notes/${idNote}`, {
-            method: 'PUT',
-        }).then(res => {
-        if(res.ok) return res.json()
-        }).then(data => {
-            window.location.reload()
-        }).catch(err => {
-            console.log(err)
-        })
-        //- consle.log(note.id_note)
-        //- noteId = note.id_note
-        //- update = true
-        //- location.href=`/notes/${noteId}`
-    }
     function deleteNote(noteId){
         console.log('delete')
         fetch(`/notes/${noteId}`, {
@@ -57,4 +38,4 @@ script.
         }).catch(err => {
             console.log(err)
         })
-    };
+    }
